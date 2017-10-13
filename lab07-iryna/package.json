@@ -20,6 +20,7 @@
     "cowsay": "^1.2.1"
   },
   "devDependencies": {
+    "eslint": "^4.8.0",
     "expect": "^21.2.1",
     "express": "^4.16.2",
     "mocha": "^4.0.1",
