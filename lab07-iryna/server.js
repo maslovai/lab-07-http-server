@@ -12,6 +12,7 @@ let sendResponse = function(res, status, type, body) {
 };
 
 const server = module.exports = http.createServer((req, res) => {
+
   req.url = url.parse(req.url);
 
   if (req.method === 'GET' && req.url.pathname === '/') {
@@ -32,14 +33,15 @@ const server = module.exports = http.createServer((req, res) => {
          <p> This should be my project description </p>
        </main>
       </body>
-    </html>`);
+    </html>`)
   };
 
-  if (req.method === 'GET' && req.url.pathname === '/cowsay') {
-    console.log(req.url);
-    sendResponse(res, 200, "text/html", cowsay.say({text: `${req.url.query}`}));
+
+  if (req.method === 'GET' && req.url.pathname === '/cowsay'&& req.url.query) {
+    sendResponse(res, 200, "text/html", cowsay.say({text: `${req.url.query}`}))
   }
-  else sendResponse(res, 200, "text/html", cowsay.cow({text:'I need somth good to say'}));
+  else sendResponse(res, 200, "text/html", cowsay.say({text:'I need somth good to say'}));
+
 
   if (req.method === 'POST' && req.url.pathname === '/') {
     let body = '';
@@ -52,16 +54,13 @@ const server = module.exports = http.createServer((req, res) => {
       try {
         json = JSON.parse(body);
       } catch(e) {
-        return sendResponse(res, 400, 'bad json!');
+        return sendResponse(res, 400,"text/html", 'bad json!');
       }
       console.log(json);
-      sendResponse(res, 200, 'got the JSON');
+      sendResponse(res, 200, "text/html",'got the JSON');
     });
   } else {
-    sendResponse(res, 400, 'bad request');
+    sendResponse(res, 400, "text/html", 'bad request');
   }
 });
 server.listen(8000,console.log('running on', 8000));
-//(cowsay.say({
-// text : "I's a cow'",
-// }))
