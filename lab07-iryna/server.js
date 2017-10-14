@@ -5,6 +5,9 @@ const http = require('http');
 const url = require('url');
 const cowsay = require("cowsay");
 const PORT = 8000;
+const bodyParser = require("body-parser");
+const path = require("path");
+const fs = require('fs');
 
 let sendResponse = function(res, status, type, body) {
   res.writeHead(status, {'Content-Type': '${type}'});
@@ -17,37 +20,37 @@ const server = module.exports = http.createServer((req, res) => {
   req.url = url.parse(req.url);
 
   if (req.method === 'GET' && req.url.pathname === '/') {
-    sendResponse(res, 200, "text/html", `<!DOCTYPE html>
-    <html>
-      <head>
-        <title> cowsay </title>
-      </head>
-      <body>
-       <header>
-         <nav>
-           <ul>
-             <li><a href="/cowsay">cowsay</a></li>
-           </ul>
-         </nav>
-       <header>
-       <main>
-         <p> This should be my project description </p>
-       </main>
-      </body>
-    </html>`)
-  };
+      sendResponse( res, 200, 'text/html', `<html>
+        <head>
+          <title> cowsay </title>
+        </head>
+        <body>
+         <header>
+           <nav>
+             <ul>
+               <li><a href="/cowsay">cowsay</a></li>
+             </ul>
+           </nav>
+         <header>
+         <main>
+           <p> This should be my project description </p>
+         </main>
+        </body>
+      </html>`);
+ } else
+   if (req.method === 'GET' && req.url.pathname === '/cowsay'){
+     if(req.url.query) {
+       sendResponse(res, 200, "text/html", cowsay.say({text: `${req.url.query}`}))
+     } else {
+      sendResponse(res, 200, "text/html", cowsay.say({text:'I need something good to say'}))
+     }
 
+  } else if (req.method === 'POST' && req.url.pathname === '/') {
 
-  if (req.method === 'GET' && req.url.pathname === '/cowsay'&& req.url.query) {
-    sendResponse(res, 200, "text/html", cowsay.say({text: `${req.url.query}`}))
-  }
-  else sendResponse(res, 200, "text/html", cowsay.say({text:'I need something good to say'}));
-
-
-  if (req.method === 'POST' && req.url.pathname === '/') {
-    let body = '';
+   let text = '';
     req.on('data', function(data) {
-      body += data.toString();
+      text += data.toString();
+      console.log(text);
     });
 
     req.on('end', function() {
