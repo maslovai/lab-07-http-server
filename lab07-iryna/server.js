@@ -5,7 +5,8 @@ const http = require('http');
 const url = require('url');
 const cowsay = require("cowsay");
 const PORT = 8000;
-const bodyParser = require("body-parser");
+const bodyParser = require("./lib/body-parser");
+const urlParser = require("./lib/url-parser.js")
 const path = require("path");
 const fs = require('fs');
 
@@ -17,7 +18,8 @@ let sendResponse = function(res, status, type, body) {
 
 const server = module.exports = http.createServer((req, res) => {
 
-  req.url = url.parse(req.url);
+   req.url = urlParser.run(req);
+  //  console.log(req.method, req.body, req.url);
 
   if (req.method === 'GET' && req.url.pathname === '/') {
       sendResponse( res, 200, 'text/html', `<html>
@@ -45,24 +47,13 @@ const server = module.exports = http.createServer((req, res) => {
       sendResponse(res, 200, "text/html", cowsay.say({text:'I need something good to say'}))
      }
 
-  } else if (req.method === 'POST' && req.url.pathname === '/') {
+  } else
+  if (req.method === 'POST' && req.url.pathname === '/api/cowsay') {
+    bodyParser.run(req)
+    .then((body)=>{
+      sendResponse(res, 200, "text/json", `{ "content": ${JSON.stringify(body)} }`);
+    }).catch((err)=>console.log(err))
 
-   let text = '';
-    req.on('data', function(data) {
-      text += data.toString();
-      console.log(text);
-    });
-
-    req.on('end', function() {
-      let json;
-      try {
-        json = JSON.parse(body);
-      } catch(e) {
-        return sendResponse(res, 400,"text/html", 'bad json!');
-      }
-      console.log(json);
-      sendResponse(res, 200, "text/html",'got the JSON');
-    });
   } else {
     sendResponse(res, 400, "text/html", 'bad request');
   }
