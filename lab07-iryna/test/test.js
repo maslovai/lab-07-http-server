@@ -5,7 +5,7 @@ const request = require('superagent');
 
 const server = require('../server.js');
 
-const PORT = 5555;
+const PORT = 8000;
 const host = 'localhost:' + PORT;
 
 describe('our first http server', function() {
