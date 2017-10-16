@@ -2,7 +2,6 @@
 
 const expect = require('expect');
 const request = require('superagent');
-
 const server = require('../server.js');
 
 const PORT = 8000;
@@ -22,7 +21,7 @@ describe('our first http server', function() {
       .get(host + '/')
       .end((err, res) => {
         expect(err).toBe(null);
-        expect(res.text).toBe('such GET, much request');
+        expect(res.status).toBe(200);
         done();
       });
   });
@@ -30,46 +29,34 @@ describe('our first http server', function() {
 
   it('should process query params', function(done) {
     request
-      .get(host + '/query?test=test')
-      .end((err, res) => {
-        expect(err).toBe(null);
-        expect(res.text).toBe('test=test');
-        done();
-      });
-  });
-
-  it('should process json', function(done) {
-    request
-      .post(host + '/')
-      .send({test: 'hello test'})
+      .get(host + '/cowsay?text=hello')
       .end((err, res) => {
         expect(err).toBe(null);
 
-        expect(res.text).toBe('got the JSON');
+        expect(res.status).toBe(200);
         done();
       });
   });
 
-  it('should error on bad JSON', function(done) {
-    request
-      .post(host + '/')
-      .send('{"bad":"json')
-      .end((err, res) => {
-        expect(err).not.toBe(null);
-        expect(err.message).toBe('Bad Request');
-        expect(res.text).toBe('bad json!');
-        done();
-      });
-  });
 
-  it('should give a 400 on a bad url', function(done) {
-    request
-      .get(host + '/doesnotexist')
-      .end((err, res) => {
-        expect(err).not.toBe(null);
-        expect(err.message).toBe('Bad Request');
-        expect(res.text).toBe('bad request');
 
+  // it('should error on bad JSON', function(done) {
+  //   request
+  //     .post(host + '/api/cowsay')
+  //     .send('{"content":"json}')
+  //     .end((err, res) => {
+  //       expect(err).not.toBe(null);
+  //       expect(res.text).toBe('I need something good to say');
+  //       done();
+  //     });
+  // });
+
+  it('should give a 404 on a bad url', function(done) {
+    request
+      .get(host + '/wrong')
+      .end((err, res) => {
+        expect(res.status).toBe(404);
+        expect(res.text).toBe('address not found');
         done();
       });
   });

@@ -6,12 +6,11 @@ const url = require('url');
 const cowsay = require("cowsay");
 const PORT = 8000;
 const bodyParser = require("./lib/body-parser");
-const urlParser = require("./lib/url-parser.js")
-const path = require("path");
+const urlParser = require("./lib/url-parser.js");
 const fs = require('fs');
 
 let sendResponse = function(res, status, type, body) {
-  res.writeHead(status, {'Content-Type': '${type}'});
+  res.writeHead(status, {'Content-Type': `${type}`});
   res.write(body);
   res.end();
 };
@@ -19,30 +18,17 @@ let sendResponse = function(res, status, type, body) {
 const server = module.exports = http.createServer((req, res) => {
 
    req.url = urlParser.run(req);
-  //  console.log(req.method, req.body, req.url);
+   console.log( req.url);
 
   if (req.method === 'GET' && req.url.pathname === '/') {
-      sendResponse( res, 200, 'text/html', `<html>
-        <head>
-          <title> cowsay </title>
-        </head>
-        <body>
-         <header>
-           <nav>
-             <ul>
-               <li><a href="/cowsay">cowsay</a></li>
-             </ul>
-           </nav>
-         <header>
-         <main>
-           <p> This should be my project description </p>
-         </main>
-        </body>
-      </html>`);
- } else
+      sendResponse(res, 200, 'text/html',`${fs.readFileSync('./index.html').toString()}`);
+    }
+
+  else
    if (req.method === 'GET' && req.url.pathname === '/cowsay'){
-     if(req.url.query) {
-       sendResponse(res, 200, "text/html", cowsay.say({text: `${req.url.query}`}))
+     req.url = urlParser.run(req);
+     if(req.url.query.text) {
+       sendResponse(res, 200, "text/html", cowsay.say({text: `${req.url.query.text}`}))
      } else {
       sendResponse(res, 200, "text/html", cowsay.say({text:'I need something good to say'}))
      }
@@ -53,9 +39,16 @@ const server = module.exports = http.createServer((req, res) => {
     .then((body)=>{
       sendResponse(res, 200, "text/json", `{ "content": ${JSON.stringify(body)} }`);
     }).catch((err)=>console.log(err))
-
-  } else {
-    sendResponse(res, 400, "text/html", 'bad request');
+   }
+    else
+    if(req.method === 'GET'&&req.url.pathname !== '/cowsay'){
+      {
+        sendResponse(res, 404, "text/html", 'address not found');
+      }
+    }
+  else {
+    sendResponse(res, 400, "text/html", '{"error": "invalid request: text query required"}');
   }
+
 });
 server.listen(PORT,console.log('running on', PORT));

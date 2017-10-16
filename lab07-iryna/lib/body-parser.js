@@ -6,13 +6,13 @@ bodyParser.run = function(req) {
   let text = '';
    req.on('data', function(data) {
      text += data.toString();
-     console.log(text);
+    //  console.log(text);
    });
    req.on('end', function() {
      let json;
      try {
        json = JSON.parse(text);
-       console.log('json:', json);
+      //  console.log('json:', json);
        resolve(json);
      } catch(error) {
        reject(error);
